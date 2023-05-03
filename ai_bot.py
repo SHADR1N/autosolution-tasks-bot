@@ -1,4 +1,4 @@
 
 
-def start_bot():
+def start_bot(TOKEN_BOT):
     ...
