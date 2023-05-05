@@ -326,10 +326,18 @@ def start_bot(task_write, async_task_read):
         mid = message.message_id
         command = message.text
 
+        try:
+            await bot.delete_message(
+                chat_id=message.from_user.id,
+                message_id=message.message_id
+            )
+        except:
+            pass
+
         if await handler.answer(bot, uid, mid, command):
             return
 
-        return await message.answer("Не известная команад.")
+        return await bot.send_message(uid, "Не известная команад.")
 
     loop = asyncio.get_event_loop()
     loop.create_task(send_answer(async_task_read))

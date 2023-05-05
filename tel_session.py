@@ -32,6 +32,9 @@ class QeuenTask:
         self.async_task_read = async_task_read
 
     async def new_task(self, info: dict, account_data: dict):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
         url = info["url"]
         uid = info["uid"]
 
@@ -45,7 +48,8 @@ class QeuenTask:
             proxy=proxy,
             auto_reconnect=True,
             request_retries=2,
-            connection_retries=2
+            connection_retries=2,
+            loop=loop
         )
         try:
             await account.connect()
@@ -100,8 +104,9 @@ class QeuenTask:
             "tasks": answer
         }
         self.async_task_read.put(str(json.dumps(result)))
-        await self.disconnect(account)
         session_obj.append(account_data)
+        await self.disconnect(account)
+        loop.close()
         return
 
     async def get_access_to_bot(self, account):

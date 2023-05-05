@@ -20,10 +20,9 @@ class Handler:
     @staticmethod
     async def inline_keyboard(buttons: list, row_width: int = 2) -> types.InlineKeyboardMarkup:
         knb = types.InlineKeyboardMarkup(row_width=row_width)
-        for button in buttons:
-            knb.add(
-                *[types.InlineKeyboardButton(text=text[0], **text[1]) for text in button]
-            )
+        knb.add(
+            *[types.InlineKeyboardButton(text=text[0], url=text[1]) for text in buttons]
+        )
         return knb
 
     async def answer(self, bot: Bot, uid: int, mid: int, command: str) -> bool:
