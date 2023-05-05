@@ -4,21 +4,20 @@ import os
 import random
 import threading
 import time
-from typing import List
 
 from telethon import TelegramClient
 from telethon.tl.functions.channels import JoinChannelRequest
-from telethon import types
 
 from dotenv import load_dotenv
 
 load_dotenv()
 proxy = os.getenv("PROXY")
+proxy_type = os.getenv("PROXY_TYPE")
 URL_BOT = os.getenv("URL_BOT")
 
 session_obj = []
 proxy = {
-    "proxy_type": "http",
+    "proxy_type": proxy_type,
     "addr": proxy.split(":")[0],
     "port": int(proxy.split(":")[1]),
     "username": proxy.split(":")[2],
