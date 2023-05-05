@@ -22,7 +22,7 @@ class Handler:
         knb = types.InlineKeyboardMarkup(row_width=row_width)
         for button in buttons:
             knb.add(
-                *[types.InlineKeyboardButton(text=text[0], callback_data=text[1]) for text in button]
+                *[types.InlineKeyboardButton(text=text[0], **text[1]) for text in button]
             )
         return knb
 
@@ -33,12 +33,20 @@ class Handler:
             knb = await self.text_keyboard(return_answer["button"]) \
                 if not return_answer["inline"] \
                 else await self.inline_keyboard(return_answer["button"])
-
-            await bot.send_message(
-                uid,
-                return_answer["answer"],
-                reply_markup=knb
-            )
+            if "image" in return_answer:
+                await bot.send_photo(uid,
+                                     caption=return_answer["answer"],
+                                     photo=open(return_answer["image"], "rb"),
+                                     parse_mode="Markdown",
+                                     reply_markup=knb
+                                     )
+            else:
+                await bot.send_message(
+                    uid,
+                    return_answer["answer"],
+                    reply_markup=knb,
+                    parse_mode="Markdown"
+                )
             return True
 
         else:
