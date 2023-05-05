@@ -60,9 +60,8 @@ class QeuenTask:
             }
             self.async_task_read.put(str(json.dumps(result)))
             session_obj.append(account_data)
-            return print("Error connect to account...")
+            return
 
-        print("Connected.")
         if await account.is_user_authorized():
             await account.start()
         else:
@@ -72,7 +71,7 @@ class QeuenTask:
             }
             self.async_task_read.put(str(json.dumps(result)))
             session_obj.append(account_data)
-            return print("Bad auth acc")
+            return
         try:
             chat_send = await self.get_access_to_bot(account)
 
@@ -120,18 +119,15 @@ class QeuenTask:
 
             if "@" in last_message:
                 url_chat = [i for i in last_message.split(" ") if "@" in i][0]
-                print("Joined to channel...")
 
                 await account(JoinChannelRequest(url_chat))
                 await asyncio.sleep(2)
 
             elif last_message == "В каком вы классе?":
-                print("Selected number class")
                 await res[-1].click(5)
                 await asyncio.sleep(2)
 
             elif last_message == "Отправьте ссылку на тест":
-                print("Waiting url...")
                 break
 
         return chat_send
@@ -141,7 +137,7 @@ class QeuenTask:
         try:
             await account.disconnect()
         except:
-            return print("Error disconnected..")
+            return
 
     def run(self):
         while True:

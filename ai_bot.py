@@ -2,6 +2,7 @@ import asyncio
 import os
 import json
 import re
+from typing import Union
 
 from models import User, AdminList, ChannelList
 
@@ -50,22 +51,22 @@ class IsNotAdmin(BoundFilter):
 class IsSubscribed(BoundFilter):
     key = "is_subscribed"
 
-    async def check(self, message: types.Message):
-        User.get_status(uid=message.from_user.id)
+    async def check(self, message: Union[types.Message, int]):
+        uid = message.from_user.id if isinstance(message, types.Message) else message
+        User.get_status(uid=uid)
 
         channel = [chat.channel_id for chat in ChannelList.select()]
         for chat in channel:
             try:
-                member = await bot.get_chat_member(chat, message.from_user.id)
+                member = await bot.get_chat_member(chat, uid)
 
                 if member.status in ['kicked', 'left']:
                     return True
 
-            except Unauthorized:
+            except Unauthorized as ex:
                 return True
 
             except BadRequest as ex:
-                print(ex)
                 return True
 
         return False
@@ -106,7 +107,6 @@ async def send_answer(async_task_read):
 
 
 def start_bot(task_write, async_task_read):
-
     @dp.message_handler(IsSubscribed(), IsNotAdmin())
     async def access_denied(message: types.Message):
         uid = message.from_user.id
@@ -276,14 +276,14 @@ def start_bot(task_write, async_task_read):
         mid = callback.message.message_id
         data = callback.data
 
-        if data == "check_access" and not await IsSubscribed().check(callback.message):
+        if data == "check_access" and not await IsSubscribed().check(uid):
             try:
                 await bot.delete_message(chat_id=uid, message_id=mid)
             except:
                 pass
             return await handler.answer(bot, uid, mid, "/start")
         else:
-            return await callback.answer("Вы не выполнили все действия.")
+            return await bot.answer_callback_query(callback.id, "Подпишитесь на каналы по кнопкам выше.", show_alert=True)
 
     @dp.message_handler(state=UrlForm.url_choose)
     async def message_state(message: types.Message, state: FSMContext):
